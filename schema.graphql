@@ -78,3 +78,71 @@ type Transfer @entity {
   timestamp: Date
   isSuccess: Boolean
 }
+
+# todo, add domain transfer event
+type TransferDomain @entity {
+  id: ID!
+  from: Account
+  to: Account
+  domain: String
+}
+
+type Domain @entity {
+  id: ID!
+
+  domain: String
+  owner: Account
+  relay: String #crosschain account, current keep empty,
+  ethereum: String
+  deposit: BigInt
+  registered: Boolean
+}
+
+type NFT @entity {
+  id: ID!
+
+  classId: Int
+  tokenId: Int
+}
+
+type Auction @entity {
+  id: ID!
+
+  creator: Account
+  token0: NFT
+  token1: Int
+  min1: BigInt
+  duration: Int
+  startAt: BigInt
+  endAt: BigInt
+  timestampCreate: Date
+  isCanceled: Boolean
+  isTaked: Boolean
+  winner: Account
+  winnerAmount: BigInt
+}
+
+type AuctionHistory @entity {
+  id: ID!
+
+  auctionId: ID!
+  bidder: Account
+  amount: BigInt
+  isWinner: Boolean
+  timestamp: Date
+}
+
+type Order @entity {
+  id: ID!
+
+  maker: Account
+  token0: NFT
+  token1: Int
+  total1: BigInt
+  timestampCreate: Date
+  isCanceled: Boolean
+  isTaked: Boolean
+  taker: Account
+  takerAmount: BigInt
+  timestampTaker: Date
+}

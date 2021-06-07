@@ -19,3 +19,15 @@ dataSources:
             method: Deposit
         - handler: handleCall
           kind: substrate/CallHandler
+
+        - handler: domainRegisterEvent
+          kind: substrate/EventHandler
+          filter:
+            module: domainRegistrar
+            method: DomainRegistered
+
+        - handler: domainDeregisterEvent
+          kind: substrate/EventHandler
+          filter:
+            module: domainRegistrar
+            method: DomainDeregistered
