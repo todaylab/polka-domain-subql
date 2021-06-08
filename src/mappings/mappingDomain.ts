@@ -30,7 +30,8 @@ export async function domainDeregisterEvent(event: SubstrateEvent): Promise<void
 
     const domain = (domain_origin as Bytes).toString();
     let record = await Domain.get(domain);
-
-    record.registered = false;
-    await record.save();
+    if (record) {
+        record.registered = false;
+        await record.save();
+    }
 }
