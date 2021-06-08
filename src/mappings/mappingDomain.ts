@@ -19,6 +19,7 @@ export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> 
     record.ownerId = who;
     record.ethereum = ethereum;
     record.registered = true;
+    record.deposit = deposit;
 
     await record.save();
 }
