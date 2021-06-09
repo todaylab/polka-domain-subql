@@ -1,6 +1,6 @@
 import { SubstrateExtrinsic, SubstrateEvent, SubstrateBlock } from "@subql/types";
 import { AccountId, Balance, BlockNumber } from '@polkadot/types/interfaces/runtime';
-import type { Bytes} from '@polkadot/types';
+import type {Bytes} from '@polkadot/types';
 import {hexToUtf8} from '../helpers/common'
 import { Domain } from "../types/models/Domain";
 

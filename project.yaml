@@ -96,9 +96,24 @@ dataSources:
           filter:
             module: domainRegistrar
             method: DomainRegistered
-
         - handler: domainDeregisterEvent
           kind: substrate/EventHandler
           filter:
             module: domainRegistrar
             method: DomainDeregistered
+
+        - handler: orderCreatedEvent
+          kind: substrate/EventHandler
+          filter:
+            module: order
+            method: OrderCreated
+        - handler: orderSwappedEvent
+          kind: substrate/EventHandler
+          filter:
+            module: order
+            method: OrderSwapped
+        - handler: orderCancelledEvent
+          kind: substrate/EventHandler
+          filter:
+            module: order
+            method: OrderCancelled
