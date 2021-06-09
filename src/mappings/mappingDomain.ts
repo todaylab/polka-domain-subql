@@ -11,7 +11,7 @@ export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> 
     
     const who = (who_origin as AccountId).toString();
     const domain = hexToUtf8(domain_origin as Bytes);
-    const ethereum = (ethereum_origin as Bytes).toString();
+    const ethereum = hexToUtf8(ethereum_origin as Bytes);
     const deposit = (deposit_origin as Balance).toBigInt();
 
     let record = new Domain((domain_origin as Bytes).toString())
