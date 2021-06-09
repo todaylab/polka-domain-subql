@@ -8,6 +8,8 @@ import {hexToUtf8} from '../helpers/common'
 import { NFT } from "../types/models/NFT";
 import { Order } from "../types/models/Order";
 import { NFTHandler} from "../handlers/sub-handlers/nft"
+import { AccountHandler } from '../handlers/sub-handlers/account'
+
 
 //Self::deposit_event(Event::OrderCreated(order_id, maker, token0, token1, total1));
 export async function orderCreatedEvent(event: SubstrateEvent): Promise<void> {
@@ -19,6 +21,7 @@ export async function orderCreatedEvent(event: SubstrateEvent): Promise<void> {
     const token1 = (token1_origin as CurrencyId).toNumber();
     const total1 = (total1_origin as Balance).toBigInt();
 
+    await AccountHandler.ensureAccount(maker);
     await NFTHandler.ensureNFT(token0.toString(), token0[0].toNumber(), token0[1].toNumber());
 
     const record = new Order(order_id);
@@ -40,7 +43,7 @@ export async function orderSwappedEvent(event: SubstrateEvent): Promise<void> {
     const taker = (taker_origin as AccountId).toString();
     const amount1 = (amount1_origin as Balance).toBigInt();
 
-
+    await AccountHandler.ensureAccount(taker);
     let record = await Order.get(order_id);
     if (record) {
         record.isTaked = true;
