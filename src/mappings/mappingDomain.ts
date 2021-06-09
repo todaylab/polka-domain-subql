@@ -1,7 +1,7 @@
 import { SubstrateExtrinsic, SubstrateEvent, SubstrateBlock } from "@subql/types";
 import { AccountId, Balance, BlockNumber } from '@polkadot/types/interfaces/runtime';
 import type { Bytes} from '@polkadot/types';
-
+import {hexToUtf8} from '../helpers/common'
 import { Domain } from "../types/models/Domain";
 
 
@@ -10,11 +10,11 @@ export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> 
     const { event: { data: [who_origin, domain_origin, ethereum_origin, deposit_origin] } } = event;
     
     const who = (who_origin as AccountId).toString();
-    const domain = (domain_origin as Bytes).toString();
+    const domain = hexToUtf8(domain_origin as Bytes);
     const ethereum = (ethereum_origin as Bytes).toString();
     const deposit = (deposit_origin as Balance).toBigInt();
 
-    let record = new Domain(domain)
+    let record = new Domain((domain_origin as Bytes).toString())
     record.domain = domain;
     record.ownerId = who;
     record.ethereum = ethereum;
