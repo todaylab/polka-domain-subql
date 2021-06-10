@@ -117,3 +117,24 @@ dataSources:
           filter:
             module: order
             method: OrderCancelled
+
+        - handler: auctionCreatedEvent
+          kind: substrate/EventHandler
+          filter:
+            module: auction
+            method: AuctionCreated
+        - handler: auctionBidEvent
+          kind: substrate/EventHandler
+          filter:
+            module: auction
+            method: AuctionBid
+        - handler: auctionCanceledEvent
+          kind: substrate/EventHandler
+          filter:
+            module: auction
+            method: AuctionCancelled
+        - handler: auctionEndEvent
+          kind: substrate/EventHandler
+          filter:
+            module: auction
+            method: AuctionEnd
