@@ -49,7 +49,7 @@ export async function orderSwappedEvent(event: SubstrateEvent): Promise<void> {
         record.isTaked = true;
         record.takerId = taker;
         record.takerAmount = amount1;
-        record.timestampCreate = event.block.timestamp;
+        record.timestampTaker = event.block.timestamp;
 
         await record.save();
     }
