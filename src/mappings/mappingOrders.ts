@@ -50,6 +50,8 @@ export async function orderSwappedEvent(event: SubstrateEvent): Promise<void> {
         record.takerId = taker;
         record.takerAmount = amount1;
         record.timestampCreate = event.block.timestamp;
+
+        await record.save();
     }
 
 }
