@@ -3,7 +3,7 @@ description: ''
 repository: 'https://github.com/polka-domain/polka-domain-subql.git'
 schema: ./schema.graphql
 network:
-  endpoint: 'wss://rpc.polkadomain.org/ws'
+  endpoint: 'ws://18.220.126.27:9988'
   types:
     CurrencyId:
       _enum:

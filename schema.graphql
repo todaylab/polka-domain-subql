@@ -96,6 +96,8 @@ type Domain @entity {
   ethereum: String
   deposit: BigInt
   registered: Boolean
+
+  lastPrice: BigInt # USDT or NAME,todo to save
 }
 
 type NFT @entity {
