@@ -120,6 +120,7 @@ export async function auctionEndEvent(event: SubstrateEvent): Promise<void> {
         record.isTaked = true;
         record.winnerId = winner.value.toString();
         record.winnerAmount = (final_amount.value as Balance).toBigInt();
+        record.timestampTaker = event.block.timestamp;
         await record.save();
 
         //todo use string hash as key

@@ -124,12 +124,13 @@ type Auction @entity {
   isTaked: Boolean
   winner: Account
   winnerAmount: BigInt
+  timestampTaker: Date
 }
 
 type AuctionHistory @entity {
   id: ID!
 
-  auctionId: ID!
+  auction: Auction
   bidder: Account
   amount: BigInt
   isWinner: Boolean
