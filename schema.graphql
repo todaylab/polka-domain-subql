@@ -151,3 +151,13 @@ type Order @entity {
   takerAmount: BigInt
   timestampTaker: Date
 }
+
+type NameTransfer @entity {
+  id: ID!
+
+  from: Account
+  to: Account
+  amount: BigInt
+  timestamp: Date
+  extrinsic: Extrinsic
+}
