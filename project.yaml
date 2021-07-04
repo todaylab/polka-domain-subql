@@ -3,7 +3,7 @@ description: ''
 repository: 'https://github.com/polka-domain/polka-domain-subql.git'
 schema: ./schema.graphql
 network:
-  endpoint: 'ws://18.220.126.27:9988'
+  endpoint: 'wss://testnet-a-rpc.polkadomain.org'
   types:
     CurrencyId:
       _enum:
@@ -74,6 +74,12 @@ network:
       min1: Balance
       duration: BlockNumber
       start_at: BlockNumber
+    AddressChainType:
+      _enum:
+        - BTC
+        - ETH
+        - DOT
+        - DOGE
 
 dataSources:
   - name: main
