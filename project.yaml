@@ -20,8 +20,10 @@ network:
       owner: AccountId
     OrderOf: Order
     OrderId: u32
+    Balance: u128
     AuctionId: u32
     CID: Vec<u8>
+    ClassId: u32
     ClassIdOf: ClassId
     TokenId: u64
     TokenIdOf: TokenId
@@ -46,9 +48,12 @@ network:
         Burnable: 2
     DomainInfo:
       native: AccountId
-      relay: Option<AccountId>
-      ethereum: Vec<u8>
+      bitcoin: Option<Vec<u8>>
+      ethereum: Option<Vec<u8>>
+      polkadot: Option<AccountId>
+      kusama: Option<AccountId>
       deposit: Balance
+      nft_token: "(ClassId, TokenId)"
     TokenSymbol:
       _enum:
         NAME: 0
@@ -76,10 +81,11 @@ network:
       start_at: BlockNumber
     AddressChainType:
       _enum:
-        - BTC
-        - ETH
-        - DOT
-        - DOGE
+      - BTC
+      - ETH
+      - DOT
+      - KSM
+
 
 dataSources:
   - name: main
@@ -107,6 +113,11 @@ dataSources:
           filter:
             module: domainRegistrar
             method: DomainDeregistered
+        - handler: domainBindAddressEvent
+          kind: substrate/EventHandler
+          filter:
+            module: domainRegistrar
+            method: BindAddress
 
         - handler: orderCreatedEvent
           kind: substrate/EventHandler

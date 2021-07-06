@@ -29,6 +29,6 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "domain-types": "github:polka-domain/domain-types"
+    "domain-types": "^1.0.1"
   }
 }

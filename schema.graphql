@@ -93,7 +93,10 @@ type Domain @entity {
   domain: String
   owner: Account
   relay: String #crosschain account, current keep empty,
+  bitcoin: String
   ethereum: String
+  polkadot: String
+  kusama: String
   deposit: BigInt
   registered: Boolean
 
