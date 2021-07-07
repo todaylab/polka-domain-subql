@@ -7,6 +7,16 @@ import type { ITuple } from '@polkadot/types/types';
 import type { ClassId } from '@polkadot/types/interfaces/uniques';
 import type { TokenId, AddressChainType } from 'domain-types/src/interfaces/types';
 import { NFT } from "../types";
+import { AccountHandler } from '../handlers/sub-handlers/account'
+
+async function getDomain(domain_bytes): Promise<Domain> {
+    const record = await Domain.get(domain_bytes);
+    if ( !record ) {
+        const new_record = new Domain(domain_bytes)
+        return new_record;
+    }
+    return record;
+}
 
 //Self::deposit_event(Event::DomainRegistered(who, domain, ethereum, deposit, (T::NftClassID::get(), token_id.into())  ));
 export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> {
@@ -18,7 +28,10 @@ export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> 
     const deposit = (deposit_origin as Balance).toBigInt();
     const token0 = token0_origin as ITuple<[ClassId, TokenId]>;
 
-    const record = new Domain((domain_origin as Bytes).toString())
+    await AccountHandler.ensureAccount(who);
+
+    const record = await getDomain((domain_origin as Bytes).toString());
+
     record.domain = domain;
     record.ownerId = who;
     record.ethereum = ethereum;
@@ -46,6 +59,7 @@ export async function domainDeregisterEvent(event: SubstrateEvent): Promise<void
     const domain = (domain_origin as Bytes).toString();
     const record = await Domain.get(domain);
     if (record) {
+        record.ownerId = null;
         record.registered = false;
         await record.save();
     }
@@ -78,5 +92,28 @@ export async function domainBindAddressEvent(event: SubstrateEvent): Promise<voi
 
         await record.save();
     }
+}
 
+// Self::deposit_event(Event::Transfer(
+//     who,
+//     to,
+//     domain.clone(),
+//     domain_info.nft_token,
+// ));
+export async function domainTransferEvent(event: SubstrateEvent): Promise<void> {
+    const { event: { data: [who_origin, to_origin, domain_origin, nft_token_origin] } } = event;
+
+    const who = (who_origin as AccountId).toString();
+    const to = (to_origin as AccountId).toString();
+    const domain = (domain_origin as Bytes).toString();
+
+    await AccountHandler.ensureAccount(who);
+    await AccountHandler.ensureAccount(to);
+
+    const record = await Domain.get(domain);
+    if (record) {
+        record.ownerId = to;
+
+        await record.save();
+    }
 }

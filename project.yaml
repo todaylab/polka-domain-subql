@@ -118,6 +118,11 @@ dataSources:
           filter:
             module: domainRegistrar
             method: BindAddress
+        - handler: domainTransferEvent
+          kind: substrate/EventHandler
+          filter:
+            module: domainRegistrar
+            method: Transfer
 
         - handler: orderCreatedEvent
           kind: substrate/EventHandler
