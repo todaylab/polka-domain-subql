@@ -1,6 +1,6 @@
 import { SubstrateExtrinsic, SubstrateEvent, SubstrateBlock } from "@subql/types";
 import { AccountId, Balance, BlockNumber } from '@polkadot/types/interfaces/runtime';
-import type { Bytes, u32, u64 } from '@polkadot/types';
+import type { Bytes, u32, u64, Option } from '@polkadot/types';
 import {hexToUtf8} from '../helpers/common';
 import { Domain } from "../types/models/Domain";
 import type { ITuple } from '@polkadot/types/types';
@@ -18,13 +18,25 @@ async function getDomain(domain_bytes): Promise<Domain> {
     return record;
 }
 
-//Self::deposit_event(Event::DomainRegistered(who, domain, ethereum, deposit, (T::NftClassID::get(), token_id.into())  ));
+// Self::deposit_event(Event::DomainRegistered(
+//     who,
+//     domain,
+//     bitcoin,
+//     ethereum,
+//     polkadot,
+//     kusama,
+//     deposit,
+//     (T::NftClassID::get(), token_id.into()),
+// ));
 export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [who_origin, domain_origin, ethereum_origin, deposit_origin, token0_origin] } } = event;
+    const { event: { data: [who_origin, domain_origin, bitcoin_origin, ethereum_origin, polkadot_origin, kusama_origin, deposit_origin, token0_origin] } } = event;
     
     const who = (who_origin as AccountId).toString();
     const domain = hexToUtf8(domain_origin as Bytes);
-    const ethereum = hexToUtf8(ethereum_origin as Bytes);
+    const bitcoin = (bitcoin_origin as Option<Bytes>);
+    const ethereum = (ethereum_origin as Option<Bytes>);
+    const polkadot = (polkadot_origin as Option<Bytes>);
+    const kusama = (kusama_origin as Option<Bytes>);
     const deposit = (deposit_origin as Balance).toBigInt();
     const token0 = token0_origin as ITuple<[ClassId, TokenId]>;
 
@@ -34,7 +46,10 @@ export async function domainRegisterEvent(event: SubstrateEvent): Promise<void> 
 
     record.domain = domain;
     record.ownerId = who;
-    record.ethereum = ethereum;
+    record.bitcoin = bitcoin.isSome ? bitcoin.unwrapOrDefault().toString(): null;
+    record.ethereum = ethereum.isSome ? ethereum.unwrapOrDefault().toString(): null;
+    record.polkadot = polkadot.isSome ? polkadot.unwrapOrDefault().toString(): null;
+    record.kusama = kusama.isSome ? kusama.unwrapOrDefault().toString(): null;
     record.registered = true;
     record.deposit = deposit;
 
