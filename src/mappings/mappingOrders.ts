@@ -4,9 +4,7 @@ import type {Bytes} from '@polkadot/types';
 import type { ITuple } from '@polkadot/types/types';
 import type { ClassId } from '@polkadot/types/interfaces/uniques';
 import type {OrderId, CurrencyId, TokenId} from 'domain-types/src/interfaces/types';
-import {hexToUtf8} from '../helpers/common'
-import { NFT } from "../types/models/NFT";
-import { Order } from "../types/models/Order";
+import { MergeOrderAuction } from "../types/models/MergeOrderAuction";
 import { NFTHandler} from "../handlers/sub-handlers/nft"
 import { AccountHandler } from '../handlers/sub-handlers/account'
 
@@ -24,11 +22,12 @@ export async function orderCreatedEvent(event: SubstrateEvent): Promise<void> {
     await AccountHandler.ensureAccount(maker);
     await NFTHandler.ensureNFT(token0.toString(), token0[0].toNumber(), token0[1].toNumber());
 
-    const record = new Order(order_id);
-    record.makerId = maker;
+    const record = new MergeOrderAuction('1'  + '-' + order_id);
+    record.creatorId = maker;
+    record.type = 1;
     record.token0Id = token0.toString();
     record.token1 = token1;
-    record.total1 = total1;
+    record.min1 = total1;
     record.timestampCreate = event.block.timestamp;
     record.isCanceled = false;
     record.isTaked = false;
@@ -44,7 +43,7 @@ export async function orderSwappedEvent(event: SubstrateEvent): Promise<void> {
     const amount1 = (amount1_origin as Balance).toBigInt();
 
     await AccountHandler.ensureAccount(taker);
-    let record = await Order.get(order_id);
+    const record = await MergeOrderAuction.get(order_id);
     if (record) {
         record.isTaked = true;
         record.takerId = taker;
@@ -61,7 +60,7 @@ export async function orderCancelledEvent(event: SubstrateEvent): Promise<void> 
     const { event: { data: [order_id_origin] } } = event;
     const order_id = (order_id_origin as OrderId).toString();
 
-    let record = await Order.get(order_id);
+    const record = await MergeOrderAuction.get(order_id);
     if (record) {
         record.isCanceled = true;
         await record.save();
