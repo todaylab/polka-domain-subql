@@ -13,9 +13,9 @@ export async function nameAssertTransferEvent(event: SubstrateEvent): Promise<vo
 
     await AccountHandler.ensureAccount(from)
     await AccountHandler.ensureAccount(to)
-    const blockNumber = (event.extrinsic.block.block.header.number as Compact<BlockNumber>).toNumber();
+    const blockNumber = (event.block.block.header.number as Compact<BlockNumber>).toNumber();
 
-    if ("balances" === event.extrinsic.extrinsic.method.section) {
+    if (event.extrinsic && "balances" === event.extrinsic.extrinsic.method.section) {
         const record = new NameTransfer(blockNumber.toString() + '-' + event.idx.toString());
         record.fromId = from;
         record.toId = to;

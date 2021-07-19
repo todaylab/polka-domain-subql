@@ -129,6 +129,9 @@ type MergeOrderAuction @entity {
   token0: NFT
   token1: Int
   min1: BigInt
+  currentPrice: BigInt
+  auctionHistoryCount: Int
+  auctionHistoryObjArr: String
   duration: Int
   startAt: BigInt
   endAt: BigInt

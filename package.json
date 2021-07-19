@@ -29,6 +29,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "domain-types": "^1.0.1"
+    "domain-types": "^1.0.1",
+    "json-bigint": "^1.0.0"
   }
 }

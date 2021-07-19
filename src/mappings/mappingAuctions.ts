@@ -8,6 +8,11 @@ import { MergeOrderAuction } from "../types/models/MergeOrderAuction";
 import { AuctionHistory } from "../types/models/AuctionHistory";
 import { NFTHandler} from "../handlers/sub-handlers/nft"
 import { AccountHandler } from '../handlers/sub-handlers/account'
+import JSONbig from 'json-bigint'
+
+function getAuctionskey(auction_id: string): string {
+    return '0' + '-' + auction_id;
+}
 
 // Self::deposit_event(Event::AuctionCreated(
 //                 auction_id, 
@@ -43,12 +48,14 @@ export async function auctionCreatedEvent(event: SubstrateEvent): Promise<void> 
     await AccountHandler.ensureAccount(creator);
     await NFTHandler.ensureNFT(token0.toString(), token0[0].toNumber(), token0[1].toNumber());
 
-    const record = new MergeOrderAuction('0' + '-' + auction_id);
+    const record = new MergeOrderAuction(getAuctionskey(auction_id));
     record.creatorId = creator;
     record.type = 0;
     record.token0Id = token0.toString();
     record.token1 = token1;
     record.min1 = min1;
+    record.currentPrice = min1;
+    record.auctionHistoryCount = 0;
     record.timestampCreate = event.block.timestamp;
     record.isCanceled = false;
     record.isTaked = false;
@@ -74,14 +81,27 @@ export async function auctionBidEvent(event: SubstrateEvent): Promise<void> {
 
     await AccountHandler.ensureAccount(bidder);
 
-    const record = new AuctionHistory(auction_id + '-' + bidder + '-' + amount1);
-    record.auctionId = auction_id;
-    record.bidderId = bidder;
-    record.amount = amount1;
-    record.isWinner = false;
-    record.timestamp = event.block.timestamp;
-    
-    await record.save();
+    const auction = await MergeOrderAuction.get(getAuctionskey(auction_id));
+    if (auction) {
+      const record = new AuctionHistory(auction_id + '-' + auction.auctionHistoryCount);
+      record.auctionId = getAuctionskey(auction_id);
+      record.bidderId = bidder;
+      record.amount = amount1;
+      record.isWinner = false;
+      record.timestamp = event.block.timestamp;
+      await record.save();
+
+      auction.auctionHistoryCount = auction.auctionHistoryCount + 1;
+      auction.currentPrice = amount1;
+      const arr = []
+      for (let i =0; i<auction.auctionHistoryCount; i++ ) {
+        const r = await AuctionHistory.get(auction_id + '-' + i);
+        arr.push(r);
+      }
+      auction.auctionHistoryObjArr = JSONbig.stringify({historys: arr});
+      
+      await auction.save();
+    }
 }
 
 // Self::deposit_event(Event::AuctionCancelled(auction_id));
@@ -92,7 +112,7 @@ export async function auctionCanceledEvent(event: SubstrateEvent): Promise<void>
 
     const auction_id = (auction_id_origin as OrderId).toString();
 
-    const record = await MergeOrderAuction.get(auction_id);
+    const record = await MergeOrderAuction.get(getAuctionskey(auction_id));
     if (record) {
         record.isCanceled = true;
         await record.save();
@@ -112,7 +132,7 @@ export async function auctionEndEvent(event: SubstrateEvent): Promise<void> {
     const final_amount = final_amount_origin as Option<Balance>;
 
     //todo check winner is not None
-    const record = await MergeOrderAuction.get(auction_id);
+    const record = await MergeOrderAuction.get(getAuctionskey(auction_id));
     if (record && winner.isSome && final_amount.isSome) {
         await AccountHandler.ensureAccount(winner.value.toString());
 
@@ -120,12 +140,18 @@ export async function auctionEndEvent(event: SubstrateEvent): Promise<void> {
         record.takerId = winner.value.toString();
         record.takerAmount = (final_amount.value as Balance).toBigInt();
         record.timestampTaker = event.block.timestamp;
-        await record.save();
 
         //todo use string hash as key
-        const history =  await AuctionHistory.get(auction_id + '-' + winner.value.toString() + '-' + final_amount);
+        const history =  await AuctionHistory.get(auction_id + '-' + (record.auctionHistoryCount - 1));
         history.isWinner = true;
         await history.save();
+
+        const arr = []
+        for (let i =0; i<record.auctionHistoryCount; i++ ) {
+          const r = await AuctionHistory.get(auction_id + '-' + i);
+          arr.push(r);
+        }
+        record.auctionHistoryObjArr = JSONbig.stringify({historys: arr});
+        await record.save();
     }
-    
 }

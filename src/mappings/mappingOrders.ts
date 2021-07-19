@@ -43,7 +43,7 @@ export async function orderSwappedEvent(event: SubstrateEvent): Promise<void> {
     const amount1 = (amount1_origin as Balance).toBigInt();
 
     await AccountHandler.ensureAccount(taker);
-    const record = await MergeOrderAuction.get(order_id);
+    const record = await MergeOrderAuction.get('1'  + '-' + order_id);
     if (record) {
         record.isTaked = true;
         record.takerId = taker;
@@ -60,7 +60,7 @@ export async function orderCancelledEvent(event: SubstrateEvent): Promise<void> 
     const { event: { data: [order_id_origin] } } = event;
     const order_id = (order_id_origin as OrderId).toString();
 
-    const record = await MergeOrderAuction.get(order_id);
+    const record = await MergeOrderAuction.get('1'  + '-' + order_id);
     if (record) {
         record.isCanceled = true;
         await record.save();
