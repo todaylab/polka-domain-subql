@@ -8,6 +8,8 @@ import type { ClassId } from '@polkadot/types/interfaces/uniques';
 import type { TokenId, AddressChainType } from 'domain-types/src/interfaces/types';
 import { NFT } from "../types";
 import { AccountHandler } from '../handlers/sub-handlers/account'
+import { Buffer } from 'buffer';
+import { Keyring } from '@polkadot/keyring';
 
 async function getDomain(domain_bytes): Promise<Domain> {
     const record = await Domain.get(domain_bytes);
@@ -16,6 +18,22 @@ async function getDomain(domain_bytes): Promise<Domain> {
         return new_record;
     }
     return record;
+}
+
+function isHexPrefixed(str): boolean {
+  if (typeof str !== 'string') {
+    throw new Error("[is-hex-prefixed] value must be type 'string', is currently type " + (typeof str) + ", while checking isHexPrefixed.");
+  }
+
+  return str.slice(0, 2) === '0x';
+}
+
+function stripHexPrefix(str): any {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
+  return isHexPrefixed(str) ? str.slice(2) : str;
 }
 
 // Self::deposit_event(Event::DomainRegistered(
@@ -100,9 +118,15 @@ export async function domainBindAddressEvent(event: SubstrateEvent): Promise<voi
         } else if(chain_type.isEth) {
             record.ethereum = address
         } else if(chain_type.isDot) {
-            record.polkadot = address
+            const keyring = new Keyring();
+            keyring.setSS58Format(0);
+            const newUint8Array = Uint8Array.from(Buffer.from(stripHexPrefix(address), 'hex'));
+            record.polkadot = keyring.encodeAddress(newUint8Array, 0)
         } else if(chain_type.isKsm) {
-            record.kusama = address
+            const keyring = new Keyring();
+            keyring.setSS58Format(2);
+            const newUint8Array = Uint8Array.from(Buffer.from(stripHexPrefix(address), 'hex'));
+            record.kusama = keyring.encodeAddress(newUint8Array, 0)
         }
 
         await record.save();
