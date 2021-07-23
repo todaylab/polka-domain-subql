@@ -126,7 +126,7 @@ export async function domainBindAddressEvent(event: SubstrateEvent): Promise<voi
             const keyring = new Keyring();
             keyring.setSS58Format(2);
             const newUint8Array = Uint8Array.from(Buffer.from(stripHexPrefix(address), 'hex'));
-            record.kusama = keyring.encodeAddress(newUint8Array, 0)
+            record.kusama = keyring.encodeAddress(newUint8Array, 2)
         }
 
         await record.save();
